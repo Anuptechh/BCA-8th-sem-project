@@ -1,0 +1,29 @@
+names:
+- SUV
+- ambulance
+- auto_rickshaw
+- bike
+- bus
+- car
+- e-rickshaw
+- micro_bus
+- mini_truck
+- police_vehicle
+- school_bus
+- scooter
+- taxi
+- tempo
+- tractor
+- transport_vehicle
+- truck
+- van
+nc: 18
+roboflow:
+  license: CC BY 4.0
+  project: nepali-vehicle-annotation-4u9yj
+  url: https://universe.roboflow.com/ai-protocol/nepali-vehicle-annotation-4u9yj/dataset/2
+  version: 2
+  workspace: ai-protocol
+train: D:/MAIN OBJECT DETECTION SYSTEM/vehicle_dataset/train/images
+val: D:/MAIN OBJECT DETECTION SYSTEM/vehicle_dataset/train/images
+test: D:/MAIN OBJECT DETECTION SYSTEM/vehicle_dataset/train/images
