@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+env/
+venv/
+.env
+db.sqlite3
+.DS_Store
+.vscode/
+*.log
+vehicle_dataset/
+

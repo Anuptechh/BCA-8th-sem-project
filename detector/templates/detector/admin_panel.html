@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - Object Detection</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            background: linear-gradient(270deg, #2c5364, #203a43, #0f2027, #2c5364);
+            background-size: 800% 800%;
+            animation: gradientBG 15s ease infinite;
+            color: #e0f7fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00e5ff;
+            text-shadow: 0 0 10px #00b8d4;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(0, 255, 166, 0.12);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(142, 235, 11, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .model-option {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .model-option.active {
+            border-color: #00e5ff;
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+
+        button {
+            background: #00bcd4;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0097a7;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-active {
+            background: #00e676;
+            color: #000;
+        }
+
+        .back-link {
+            margin-top: 2rem;
+            color: #aef9ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #message-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .msg-success {
+            background: rgba(0, 230, 118, 0.2);
+            color: #00e676;
+            border: 1px solid #00e676;
+        }
+
+        .msg-error {
+            background: rgba(255, 23, 68, 0.2);
+            color: #ff1744;
+            border: 1px solid #ff1744;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Admin Panel</h1>
+    <div class="container">
+        <h2>Model Selection</h2>
+        <p>Select which object detection model to use for inference.</p>
+
+        <!-- PRETRAINED MODEL -->
+        <div class="model-option {% if current_model == 'pretrained' %}active{% endif %}" id="option-pretrained">
+            <div class="model-info">
+                <h3>Pre-trained Model (COCO)</h3>
+                <p>YOLOv5s trained on COCO dataset (80 classes).</p>
+                {% if current_model == 'pretrained' %}
+                <span class="status-badge status-active">Active</span>
+                {% endif %}
+            </div>
+            <button onclick="setModel('pretrained')" {% if current_model == 'pretrained' %}disabled{% endif %}>
+                {% if current_model == 'pretrained' %}Selected{% else %}Select{% endif %}
+            </button>
+        </div>
+
+
+
+        <!-- VEHICLE MODEL -->
+        <div class="model-option {% if current_model == 'vehicle' %}active{% endif %}" id="option-vehicle">
+            <div class="model-info">
+                <h3>Vehicle Detection (Nepali)</h3>
+                <p>Trained on Nepali Vehicle dataset.</p>
+                {% if current_model == 'vehicle' %}
+                <span class="status-badge status-active">Active</span>
+                {% endif %}
+                {% if not vehicle_exists %}
+                <p style="color:#ff1744;margin-top:8px;">Warning: Model file not found! (models/vehicle_model.pt)</p>
+                {% endif %}
+            </div>
+            <button onclick="setModel('vehicle')" {% if current_model == 'vehicle' %}disabled{% endif %}>
+                {% if current_model == 'vehicle' %}Selected{% else %}Select{% endif %}
+            </button>
+        </div>
+
+        <div id="message-box"></div>
+    </div>
+
+    <a href="/" class="back-link">Back to Home</a>
+
+    <script>
+        function setModel(type) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Loading...";
+            btn.disabled = true;
+            const messageBox = document.getElementById('message-box');
+            messageBox.style.display = 'none';
+            messageBox.className = '';
+            const formData = new FormData();
+            formData.append('model_type', type);
+            fetch('/set_model/', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('Model switched successfully! Redirecting...', 'success');
+                        setTimeout(() => window.location.href = "/", 1000);
+                    } else {
+                        showMessage('Error: ' + data.error, 'error');
+                        btn.innerText = originalText; btn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    showMessage('Network error: ' + error, 'error');
+                    btn.innerText = originalText; btn.disabled = false;
+                });
+        }
+        function showMessage(msg, type) {
+            const box = document.getElementById('message-box');
+            box.innerText = msg;
+            box.className = type === 'success' ? 'msg-success' : 'msg-error';
+            box.style.display = 'block';
+        }
+    </script>
+
+    <!-- FOOTER -->
+    <footer
+        style="margin-top: 3rem; padding: 1.5rem 0; text-align: center; border-top: 1px solid rgba(0, 229, 255, 0.2); color: #aef9ff; font-size: 0.9rem;">
+        <p style="margin: 0 0 0.5rem 0;">© 2024 Object Detection System</p>
+        <p style="margin: 0; opacity: 0.8;">Powered by <span style="color: #00e5ff; font-weight: bold;">YOLOv5</span> &
+            <span style="color: #00e5ff; font-weight: bold;">Django</span>
+        </p>
+    </footer>
+
+</body>
+
+</html>

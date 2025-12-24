@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us: AKA Developers</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at center, #ff073a 0%, #220000 70%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      overflow: hidden;
+      color: black;
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 8px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6);
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.4rem;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.75);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.5),
+        0 0 20px rgba(255, 255, 255, 0.3) inset;
+      margin-bottom: 30px;
+      text-shadow: none;
+    }
+
+    button {
+      background-color: black;
+      color: #ff073a;
+      border: 2px solid #ff073a;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      box-shadow: 0 0 10px #ff073a;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button:hover {
+      background-color: #ff073a;
+      color: black;
+      box-shadow: 0 0 15px #ff073a;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <h1>About Us</h1>
+    <p>
+      We,<a href="{% url 'anup'%}">Anup</a> and <a href="{% url 'saurav' %}">Saurav </a>, are working on this project
+      named
+      <strong>"Object Detection System"</strong>. In this project, we can detect objects in an image, video, or by using
+      a
+      webcam.
+      Hang tight... we are still working on it, Till now it can detect objects in images only.
+    </p>
+    <button onclick="window.location.href='index.html'">Go Back to Home</button>
+  </div>
+</body>
+
+</html>

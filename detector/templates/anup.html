@@ -1,0 +1,194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anup's Portfolio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #0d6efd;
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+    }
+
+    .profile {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 100px;
+      margin-right: 2rem;
+      border: 5px solid #0d6efd;
+    }
+
+    .details {
+      flex: 1;
+    }
+
+    .details h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .details p {
+      margin: 0.2rem 0;
+    }
+
+    section {
+      margin-top: 2rem;
+    }
+
+    section h3 {
+      font-size: 1.5rem;
+      color: #0d6efd;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.3rem;
+    }
+
+    ul.skills {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    ul.skills li {
+      background: #0d6efd;
+      color: #fff;
+      padding: 0.5rem;
+      text-align: center;
+      border-radius: 5px;
+    }
+
+    .home-button-container {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .home-button {
+      text-decoration: none;
+      background-color: #0d6efd;
+      color: #fff;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .home-button:hover {
+      background-color: #084dcd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #0d6efd;
+      color: #fff;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Anup's Portfolio</h1>
+    <p>Frontend developer | UI/UX designer | Tech Enthusiast</p>
+  </header>
+
+  <div class="container">
+    <div class="profile">
+      <img src="{% static 'portfolioimages/Anup.jpg' %}" alt="Anup">
+      <div class="details">
+        <h2>Anup Bhattarai</h2>
+        <p><strong>Address:</strong> Kathmandu, Nepal</p>
+        <p><strong>Phone:</strong> +977-9825982239</p>
+        <p><strong>Email:</strong> anup.bhattarai280@gmail.com</p>
+      </div>
+    </div>
+
+    <section>
+      <h3>About Me</h3>
+      <p>
+        Hello! I'm Anup, a passionate web developer with over 2 years of experience in crafting beautiful and scalable
+        web projects. I thrive in solving real-world problems with clean and efficient code. I’m also a contributor to
+        open-source projects and love mentoring others.
+      </p>
+    </section>
+
+    <section>
+      <h3>Skills</h3>
+      <ul class="skills">
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>JavaScript</li>
+        <li>Python</li>
+        {% comment %}
+        <li>Django</li>
+        <li>React</li>
+        <li>Node.js</li>
+        <li>Git</li>
+        <li>SQL</li>
+        <li>REST APIs</li>
+        <li>Linux</li>
+        <li>Docker</li> {% endcomment %}
+      </ul>
+    </section>
+
+    <section>
+      <h3>Projects & Contributions</h3>
+      <p>
+        Anup has contributed to this very Django project by implementing key features in improving UI consistency.
+      </p>
+    </section>
+
+    <div class="home-button-container">
+      <a href="{% url 'index' %}" class="home-button">← Go Back to Home</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Anup Bhattarai | All rights reserved</p>
+  </footer>
+</body>
+
+</html>

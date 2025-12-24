@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YOLOv5 Object Detection</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    /* -------------------- TOP NAVBAR -------------------- */
+    .top-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      top: 20px;
+      left: 0;
+      padding: 0 30px;
+      z-index: 9999;
+    }
+
+    .logo-header h1 {
+      font-family: 'Segoe UI Black', 'Arial Black', Arial, sans-serif;
+      font-size: 3.2rem;
+      letter-spacing: 0.1em;
+      color: #00e5ff;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 6px #00e5ff,
+        0 0 12px #00b8d4,
+        0 0 18px #00b8d4,
+        0 0 24px #0097a7;
+      animation: glowPulse 3s ease-in-out infinite alternate;
+      margin: 0;
+    }
+
+    @keyframes glowPulse {
+      from {
+        text-shadow:
+          0 0 6px rgb(17, 127, 140),
+          0 0 12px #00b8d4,
+          0 0 18px #00b8d4,
+          0 0 24px #0097a7;
+      }
+
+      to {
+        text-shadow:
+          0 0 12px #00e5ff,
+          0 0 20px #00b8d4,
+          0 0 28px #00b8d4,
+          0 0 40px #0097a7;
+      }
+    }
+
+    .top-right-menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    .top-right-menu a {
+      color: #aef9ff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .top-right-menu a:hover {
+      background: rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 10px #00ffff88;
+    }
+
+    body.dark-theme .top-right-menu a {
+      color: #66ccff !important;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background: linear-gradient(270deg, #2c5364, #203a43, #0f2027, #2c5364);
+      background-size: 800% 800%;
+      animation: gradientBG 15s ease infinite;
+      color: #e0f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    h2,
+    h3 {
+      color: #00ffff;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 6px #00ffffaa;
+      font-weight: 700;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 150px;
+      width: 100%;
+      max-width: 1500px;
+    }
+
+    section {
+      width: 100%;
+      max-width: 600px;
+      /* Increased from 600px */
+      background: rgba(0, 255, 166, 0.12);
+      padding: 2rem 2rem;
+      border-radius: 15px;
+      margin-bottom: 2.5rem;
+      box-shadow:
+        0 8px 20px rgba(142, 235, 11, 0.3),
+        inset 0 0 10px rgba(6, 189, 125, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(43, 24, 150, 0.3);
+      transition: box-shadow 0.4s ease;
+      flex: 1;
+      /* Allow them to grow/shrink */
+      min-width: 300px;
+    }
+
+    section:hover {
+      box-shadow:
+        0 12px 30px rgba(0, 188, 212, 0.6),
+        inset 0 0 20px rgba(0, 188, 212, 0.4);
+    }
+
+    input[type="file"] {
+      margin: 1.2rem 0;
+      background: #00bcd4;
+      padding: 0.6rem;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 4px 8px #00bcd499;
+    }
+
+    input[type="file"]:hover {
+      background: #0097a7;
+      box-shadow: 0 6px 14px #0097a7cc;
+    }
+
+    img,
+    video,
+    canvas {
+      max-width: 100%;
+      border-radius: 15px;
+      margin: 1.2rem 0;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.5);
+      display: block;
+      filter: drop-shadow(0 0 10px #00bcd4aa);
+      max-height: 600px;
+      /* Increased from 500px */
+      width: auto;
+      /* Allow width to adjust */
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button {
+      background-color: #00bcd4;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      margin: 5px 8px 5px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 700;
+      box-shadow: 0 5px 15px #00bcd4cc;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background-color: #0097a7;
+      box-shadow: 0 7px 22px #0097a7cc;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    body.dark-theme {
+      background: #121212 !important;
+      color: #e0e0e0 !important;
+      animation: none !important;
+    }
+
+    body.dark-theme section {
+      background: #1e1e1e !important;
+      border-color: #444 !important;
+    }
+
+    li {
+      color: #aef9ff;
+      font-weight: bold;
+    }
+
+    /* Detection List Styles */
+    .detection-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .image-section {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .details-section {
+      flex: 0 0 250px;
+      background: rgba(0, 255, 166, 0.12);
+      /* Match section style */
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px solid rgba(43, 24, 150, 0.3);
+      box-shadow: 0 8px 20px rgba(142, 235, 11, 0.3);
+      backdrop-filter: blur(10px);
+      max-height: 500px;
+      overflow-y: auto;
+      display: none;
+      /* Hidden by default */
+      margin-top: 0;
+      /* Align with top of section */
+    }
+
+    .details-section h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #00bcd4;
+      padding-bottom: 5px;
+    }
+
+    .detection-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+      font-size: 0.95rem;
+    }
+
+    .detection-name {
+      color: #aef9ff;
+      text-transform: capitalize;
+    }
+
+    .detection-conf {
+      color: #00e5ff;
+      font-weight: bold;
+    }
+
+    .model-info-box {
+      background: rgba(0, 20, 30, 0.6);
+      border-left: 4px solid #00e5ff;
+      padding: 15px 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      text-align: left;
+      display: inline-block;
+      /* Make it fit content */
+      min-width: 400px;
+    }
+
+    .model-info-box h3 {
+      margin: 0 0 3px 0;
+      font-size: 1.1rem;
+      color: #e0f7fa;
+      text-shadow: none;
+    }
+
+    .model-info-box .highlight {
+      color: #00e5ff;
+      font-weight: bold;
+    }
+
+    .model-info-box p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #b2ebf2;
+    }
+
+    @media (max-width: 900px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+        padding-top: 180px;
+      }
+
+      .details-section {
+        width: 100%;
+        max-width: 700px;
+        flex: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-header {
+        flex-direction: column;
+        gap: 10px;
+        top: 10px;
+        padding: 0 10px;
+      }
+
+      .logo-header h1 {
+        font-size: 2.2rem;
+      }
+
+      section {
+        margin-top: 0;
+        /* Handled by main-container padding-top */
+      }
+    }
+
+    .images-wrapper {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .img-box {
+      flex: 1;
+      text-align: center;
+    }
+
+    .img-box h4 {
+      color: #00e5ff;
+      margin-bottom: 5px;
+    }
+
+    .img-box img {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      object-fit: contain;
+      cursor: zoom-in;
+      /* Indicate clickable */
+      transition: transform 0.2s;
+    }
+
+    .img-box img:hover {
+      transform: scale(1.02);
+    }
+
+    /* Images cursor */
+    img {
+      cursor: zoom-in;
+    }
+
+    /* Lightbox Modal */
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      cursor: zoom-out;
+    }
+
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.6);
+      cursor: zoom-out;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP HEADER: LEFT LOGO + RIGHT MENU -->
+  <div class="top-header">
+    <div class="logo-header">
+      <h1>Object Detection</h1>
+    </div>
+    <div class="top-right-menu">
+      <a href="index.html">Home</a>
+      <a href="/admin-panel/">Admin Panel</a>
+      <a href="about.html">About Us</a>
+      <!--<a href="contact.html">Contact Us</a-->
+      <a id="theme-toggle-button">Dark Mode</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- INPUT SECTION -->
+    <section id="input-section">
+      <h2>Object Detection</h2>
+      <div class="model-info-box">
+        {% if current_model == 'vehicle' %}
+        <h3>Current Model: <span class="highlight">Vehicle Detection (Nepali)</span></h3>
+        <p>Detects: Nepali Vehicles (Tempo, Tractor, Rickshaw, etc.)</p>
+        {% else %}
+        <h3>Current Model: <span class="highlight">Pre-trained (COCO)</span></h3>
+        <p>Detects: 80 Common Objects (Person, Car, Dog, etc.)</p>
+        {% endif %}
+      </div>
+      <input type="file" id="imageInput" accept="image/*" />
+
+      <div class="btn-group">
+        <button id="detectImageBtn" disabled>Detect</button>
+        <button id="clearImageBtn">Clear</button>
+      </div>
+
+      <h3 id="originalHeader" class="hidden">Original</h3>
+      <img id="preview" class="hidden" alt="Image preview" />
+    </section>
+
+    <!-- RESULT SECTION -->
+    <section id="result-section" class="hidden">
+      <h2 id="resultHeader" class="hidden">Result</h2>
+      <img id="resultImage" class="hidden" alt="Detection result" />
+
+      <a id="imgDownload" class="hidden" download="detected_result.jpg"
+        style="display:inline-block; padding:10px 20px; background:#28a745; color:white; text-decoration:none; border-radius:5px; margin-top:10px;">
+        ⬇️ Download Detected Image
+      </a>
+    </section>
+
+    <!-- DETECTED OBJECTS LIST -->
+    <div id="detectionDetails" class="details-section">
+      <h3>Detected Objects</h3>
+      <div id="detectionList"></div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL -->
+  <div id="lightbox">
+    <img id="lightboxImg" src="" alt="Zoomed image" />
+  </div>
+
+  <script>
+    /* THEME TOGGLE */
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      themeToggleButton.textContent = 'Light Mode';
+    } else {
+      themeToggleButton.textContent = 'Dark Mode';
+    }
+
+    themeToggleButton.addEventListener('click', () => {
+      if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        themeToggleButton.textContent = 'Dark Mode';
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.body.classList.add('dark-theme');
+        themeToggleButton.textContent = 'Light Mode';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    /* IMAGE DETECTION */
+    function setImageSrc(imgElement, src) {
+      if (src) {
+        imgElement.src = src;
+        imgElement.classList.remove("hidden");
+      } else {
+        imgElement.src = "";
+        imgElement.classList.add("hidden");
+      }
+    }
+
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+    const detectImageBtn = document.getElementById("detectImageBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+    const resultImage = document.getElementById("resultImage");
+    const imgDownload = document.getElementById("imgDownload");
+    const detectionDetails = document.getElementById("detectionDetails");
+    const detectionList = document.getElementById("detectionList");
+    const originalHeader = document.getElementById("originalHeader");
+    const resultHeader = document.getElementById("resultHeader");
+
+    const resultSection = document.getElementById("result-section");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+
+    let imageBase64 = "";
+
+    // Lightbox functionality
+    preview.addEventListener("click", () => {
+      if (preview.src && !preview.classList.contains("hidden")) {
+        lightboxImg.src = preview.src;
+        lightbox.style.display = "flex";
+      }
+    });
+
+    resultImage.addEventListener("click", () => {
+      if (resultImage.src && !resultImage.classList.contains("hidden")) {
+        lightboxImg.src = resultImage.src;
+        lightbox.style.display = "flex";
+      }
+    });
+
+    lightbox.addEventListener("click", () => {
+      lightbox.style.display = "none";
+    });
+
+    imageInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageBase64 = reader.result;
+        setImageSrc(preview, imageBase64);
+        originalHeader.classList.remove("hidden"); // Show Original Header
+        detectImageBtn.disabled = false;
+        setImageSrc(resultImage, "");
+        resultHeader.classList.add("hidden"); // Hide Result Header on new upload
+        resultSection.classList.add("hidden"); // Hide Result Section
+        detectionDetails.style.display = "none";
+        imgDownload.classList.add("hidden");
+      };
+      reader.readAsDataURL(file);
+    });
+
+    detectImageBtn.addEventListener("click", () => {
+      if (!imageBase64) return;
+      detectImageBtn.disabled = true;
+
+      fetch("/detect/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": getCSRFToken()
+        },
+        body: "image=" + encodeURIComponent(imageBase64)
+      })
+        .then(res => res.json())
+        .then(data => {
+          detectImageBtn.disabled = false;
+          if (data.result_image) {
+            setImageSrc(resultImage, data.result_image);
+            resultHeader.classList.remove("hidden"); // Show Result Header
+            resultSection.classList.remove("hidden"); // Show Result Section
+            imgDownload.href = data.result_image;
+            imgDownload.classList.remove("hidden");
+
+            // Render detection list
+            if (data.detections && data.detections.length > 0) {
+              detectionList.innerHTML = "";
+              data.detections.forEach(det => {
+                const item = document.createElement("div");
+                item.className = "detection-item";
+                item.innerHTML = `
+                        <span class="detection-name">${det.name}</span>
+                        <span class="detection-conf">${(det.confidence * 100).toFixed(1)}%</span>
+                    `;
+                detectionList.appendChild(item);
+              });
+              detectionDetails.style.display = "block";
+            } else {
+              detectionDetails.style.display = "none";
+            }
+
+          } else if (data.no_detection) {
+            alert(data.message);
+            setImageSrc(resultImage, "");
+            resultHeader.classList.add("hidden");
+            resultSection.classList.add("hidden");
+            detectionDetails.style.display = "none";
+            imgDownload.classList.add("hidden");
+          } else {
+            alert("No detection result received.");
+          }
+        })
+        .catch(err => {
+          detectImageBtn.disabled = false;
+          alert("Detection error: " + err.message);
+        });
+    });
+
+    clearImageBtn.addEventListener("click", () => {
+      imageInput.value = "";
+      imageBase64 = "";
+      setImageSrc(preview, "");
+      originalHeader.classList.add("hidden"); // Hide Original Header
+      setImageSrc(resultImage, "");
+      resultHeader.classList.add("hidden"); // Hide Result Header
+      resultSection.classList.add("hidden"); // Hide Result Section
+      detectionDetails.style.display = "none";
+      detectImageBtn.disabled = true;
+      imgDownload.classList.add("hidden");
+    });
+
+    /* CSRF Token helper */
+    function getCSRFToken() {
+      const csrfCookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+      return csrfCookie ? csrfCookie.split('=')[1] : '';
+    }
+  </script>
+
+  <!-- FOOTER -->
+  <footer
+    style="margin-top: 3rem; padding: 1.5rem 0; text-align: center; border-top: 1px solid rgba(0, 229, 255, 0.2); color: #aef9ff; font-size: 0.9rem;">
+    <p style="margin: 0 0 0.5rem 0;">© 2025 Object Detection System</p>
+    <p style="margin: 0; opacity: 0.8;">Powered by <span style="color: #00e5ff; font-weight: bold;">YOLOv5</span> &
+      <span style="color: #00e5ff; font-weight: bold;">Django</span>
+    </p>
+  </footer>
+
+</body>
+
+</html>
